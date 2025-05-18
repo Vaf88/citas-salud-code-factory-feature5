@@ -1,103 +1,119 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
-const datosPQRS = [
-  { id: 1, tipo: "Petición", estado: "Abierto", fecha: "2024-06-01" },
-  { id: 2, tipo: "Queja", estado: "Abierto", fecha: "2024-06-02" },
-  { id: 3, tipo: "Sugerencia", estado: "Abierto", fecha: "2024-06-03" },
+const pqrsInicial = [
+  { id: 1, asunto: "Inconformidad proceso", tipo: "Petición", fecha: "2023-01-10", estado: "Pendiente" },
+  { id: 2, asunto: "Cambio Sistema", tipo: "Queja", fecha: "2022-10-11", estado: "En gestión" },
+  { id: 3, asunto: "Solicitud información", tipo: "Reclamo", fecha: "2020-03-05", estado: "Cerrada" },
 ];
 
-const tipos = ["Petición", "Queja", "Reclamo", "Sugerencia"];
+const badgeColor = (estado: string) => {
+  if (estado === "Pendiente") return "bg-yellow-200 text-yellow-800";
+  if (estado === "En gestión") return "bg-blue-200 text-blue-800";
+  if (estado === "Cerrada") return "bg-green-200 text-green-800";
+  return "bg-gray-200 text-gray-800";
+};
 
-export default function PQRSPage() {
-  const [pqrs, setPqrs] = useState(datosPQRS);
-  const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState<number | null>(null);
-  const [form, setForm] = useState({ tipo: tipos[0], fecha: "" });
+export default function HistorialPQRSPage() {
+  const [pqrs, setPqrs] = useState(pqrsInicial);
+  const [showDelete, setShowDelete] = useState(false);
+  const [toDelete, setToDelete] = useState<number | null>(null);
+  const router = useRouter();
 
-  // Abrir formulario para nueva PQRS
-  const handleAdd = () => {
-    setForm({ tipo: tipos[0], fecha: new Date().toISOString().slice(0, 10) });
-    setEditId(null);
-    setShowForm(true);
-  };
-
-  // Abrir formulario para editar PQRS
-  const handleEdit = (item: { id: number; tipo: string; estado: string; fecha: string }) => {
-    setForm({ tipo: item.tipo, fecha: item.fecha });
-    setEditId(item.id);
-    setShowForm(true);
-  };
-
-  // Eliminar PQRS
   const handleDelete = (id: number) => {
-    setPqrs((prev) => prev.filter((item) => item.id !== id));
+    setToDelete(id);
+    setShowDelete(true);
   };
-
-  // Guardar PQRS (nuevo o editado)
-  const handleSave = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (editId) {
-      setPqrs((prev) => prev.map((item) => item.id === editId ? { ...item, ...form, estado: "Abierto" } : item));
-    } else {
-      const newId = pqrs.length ? Math.max(...pqrs.map((i) => i.id)) + 1 : 1;
-      setPqrs((prev) => [...prev, { id: newId, ...form, estado: "Abierto" }]);
-    }
-    setShowForm(false);
+  const confirmDelete = () => {
+    setPqrs((prev) => prev.filter((item) => item.id !== toDelete));
+    setShowDelete(false);
+    setToDelete(null);
+  };
+  const cancelDelete = () => {
+    setShowDelete(false);
+    setToDelete(null);
   };
 
   return (
-    <div className="flex flex-col items-center min-h-screen p-4 sm:p-8">
-      <h1 className="text-2xl sm:text-4xl font-bold mb-4 text-center">Gestión de PQRS</h1>
-      <div className="w-full max-w-2xl bg-white rounded shadow p-4 overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 text-left">ID</th>
-              <th className="p-2 text-left">Tipo</th>
-              <th className="p-2 text-left">Estado</th>
-              <th className="p-2 text-left">Fecha</th>
-              <th className="p-2 text-left">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pqrs.map((item) => (
-              <tr key={item.id} className="border-b last:border-b-0">
-                <td className="p-2">{item.id}</td>
-                <td className="p-2">{item.tipo}</td>
-                <td className="p-2">{item.estado}</td>
-                <td className="p-2">{item.fecha}</td>
-                <td className="p-2 flex gap-2">
-                  <button onClick={() => handleEdit(item)} className="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600">Editar</button>
-                  <button onClick={() => handleDelete(item.id)} className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600">Eliminar</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <button onClick={handleAdd} className="mt-4 w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 transition">Radicar nueva PQRS</button>
-      </div>
-      {/* Modal/Formulario */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <form onSubmit={handleSave} className="bg-white rounded shadow-lg p-6 w-full max-w-sm flex flex-col gap-4 relative">
-            <button type="button" onClick={() => setShowForm(false)} className="absolute top-2 right-2 text-gray-400 hover:text-gray-700">✕</button>
-            <h2 className="text-lg font-bold mb-2">{editId ? "Editar PQRS" : "Nueva PQRS"}</h2>
-            <label className="flex flex-col gap-1">
-              Tipo
-              <select className="border rounded px-2 py-1" value={form.tipo} onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}>
-                {tipos.map((t) => <option key={t}>{t}</option>)}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1">
-              Fecha
-              <input type="date" className="border rounded px-2 py-1" value={form.fecha} onChange={e => setForm(f => ({ ...f, fecha: e.target.value }))} required />
-            </label>
-            <div className="text-sm text-gray-500">Estado: <span className="font-semibold">Abierto</span></div>
-            <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 transition">Guardar</button>
-          </form>
+    <div className="min-h-screen flex flex-col bg-[#f3efff]">
+      {/* Header */}
+      <header className="flex justify-between items-center px-8 py-4 bg-[#f3efff]">
+        <div className="flex items-center gap-2">
+          <img src="/logo.png" alt="Logo"  className="w-20 h-20 rounded-full bg-white object-contain" />
         </div>
-      )}
+        <div className="flex items-center gap-4">
+          <span className="text-2xl">🔔</span>
+          <span className="font-medium">Usuario Nombre</span>
+        </div>
+      </header>
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <aside className="hidden md:flex flex-col gap-8 w-64 bg-[#ede7fa] items-center pt-16 text-lg font-medium">
+          <div className="flex flex-col gap-6">
+            <a href="/" className="hover:underline">Principal</a>
+            <a href="/pqrs" className="hover:underline">Mis solicitudes</a>
+            <a href="/notificaciones" className="hover:underline">Notificaciones</a>
+          </div>
+        </aside>
+        {/* Main content */}
+        <main className="flex-1 flex flex-col items-center py-12 px-2 sm:px-8 bg-white rounded-tl-3xl rounded-bl-3xl min-h-[80vh]">
+          <div className="w-full max-w-3xl bg-[#f6f3fd] rounded-2xl p-6 shadow flex flex-col gap-6">
+            <h2 className="text-xl font-semibold mb-2">Historial PQRS</h2>
+            {pqrs.length === 0 ? (
+              <div className="flex flex-col items-center gap-4 py-12">
+                <span className="text-gray-500 text-lg">No has radicado ninguna PQRS aún.</span>
+                <a href="/pqrs/nueva" className="bg-[#b9a4f4] text-white px-6 py-2 rounded hover:bg-[#a18be6] transition">Radicar nueva PQRS</a>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="p-2 text-left">Asunto</th>
+                      <th className="p-2 text-left">Tipo</th>
+                      <th className="p-2 text-left">Fecha</th>
+                      <th className="p-2 text-left">Estado</th>
+                      <th className="p-2 text-left"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pqrs.map((item) => (
+                      <tr key={item.id} className="border-b last:border-b-0">
+                        <td className="p-2 whitespace-nowrap">{item.asunto}</td>
+                        <td className="p-2 whitespace-nowrap">{item.tipo}</td>
+                        <td className="p-2 whitespace-nowrap">{item.fecha}</td>
+                        <td className="p-2 whitespace-nowrap">
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeColor(item.estado)}`}>{item.estado}</span>
+                        </td>
+                        <td className="p-2 whitespace-nowrap flex gap-2">
+                          <a href={`/pqrs/${item.id}`} className="text-[#a18be6] hover:underline">Ver detalles</a>
+                          <button onClick={() => router.push(`/pqrs/${item.id}/editar`)} className="text-blue-500 hover:underline">Editar</button>
+                          <button onClick={() => handleDelete(item.id)} className="text-red-500 hover:underline">Eliminar</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+          {/* Modal de eliminación */}
+          {showDelete && (
+            <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+              <div className="bg-white rounded shadow-lg p-6 w-full max-w-sm flex flex-col gap-4 relative">
+                <button type="button" onClick={cancelDelete} className="absolute top-2 right-2 text-gray-400 hover:text-gray-700">✕</button>
+                <h2 className="text-lg font-bold mb-2">¿Eliminar PQRS?</h2>
+                <p>¿Estás seguro de eliminar la solicitud <span className="font-semibold">{pqrs.find(p => p.id === toDelete)?.asunto}</span>?</p>
+                <div className="flex gap-4 justify-end">
+                  <button onClick={cancelDelete} className="bg-gray-200 text-gray-800 rounded px-4 py-2 hover:bg-gray-300 transition">No</button>
+                  <button onClick={confirmDelete} className="bg-red-500 text-white rounded px-4 py-2 hover:bg-red-600 transition">Sí, eliminar</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 } 
