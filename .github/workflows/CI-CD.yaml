@@ -1,38 +1,43 @@
-name: Continous Integration and Deployment
+name: Integration and Deploy
 on:
   push:
-    Branches: 
-      - main 
-env: 
-    VERCEL_TOKEN: ${{secrets.VERCEL_TOKEN }}
-    VERCEL_ORG_ID: ${{secrets.VERCEL_ORG_ID }}
-    VERCEL_PROJECT_ID: ${{secrets.VERCEL_PROJECT_ID }}
-jobs: 
-    Build: 
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/main'
-        steps: 
-            - name: install Node.js 22.x
-              uses: actions/setup-node@v2
-              woth: 
-                node-version: 22.x
-            - name: install dependencies 
-              run: yarn install
-            - name: Build
-              run: yarn build
-    Deploy:
-      needs: Build
-      runs-on: ubuntu-latest
-      if: github.ref == 'refs/heads/main'
-      steps: 
-        -uses: actions/checkout@v2
-        -name: install Node.js 22.x
+    branches:
+      - main
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Node.js 22.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+
+      - name: Dependencies
+        run: npm install
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Node.js 22.x
         uses: actions/setup-node@v2
         with: 
           node-version: 22.x
-        -name: install vercel CLI
-        run: yarn global add vercel
-        -name: Pull Vercel Environment Variables 
-        run: vercel pull --yes --token= ${{secrets_VERCEL_TIKEN}} 
-        -name: Deploy to Vercel
-        run: vercel deply --no-wait --token= ${{secrets_VERCEL_TIKEN}}            
+
+      - name: vercel CLI
+        run: npm install -g vercel
+
+      - name: Vercel Environment
+        run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        run: vercel deploy --no-wait --token=${{ secrets.VERCEL_TOKEN }}         
