@@ -6,24 +6,31 @@ export default function NuevaPQRSPage() {
   const [tipo, setTipo] = useState('')
   const [asunto, setAsunto] = useState('')
   const [descripcion, setDescripcion] = useState('')
-  const [archivo, setArchivo] = useState<File | null>(null)
 
   const tipos = ['Petición', 'Queja', 'Reclamo', 'Sugerencia']
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // Aquí iría la lógica para enviar la solicitud al backend
-    console.log({ tipo, asunto, descripcion, archivo })
+    const formData = new FormData(e.currentTarget)
+    const archivoSeleccionado = formData.get("archivo")
+
+    console.log({
+      tipo,
+      asunto,
+      descripcion,
+      archivo: archivoSeleccionado
+    })
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Radicar Nueva PQRS</h1>
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+    <div className="bg-[#F9F6FF] min-h-screen flex justify-center items-center font-serif">
+      <form onSubmit={handleSubmit} className="bg-white p-10 rounded-lg shadow-md w-full max-w-2xl space-y-6">
+        <h1 className="text-2xl font-bold mb-2 text-center">Radicar Nueva PQRS</h1>
+
         <div>
-          <label className="block mb-1 font-medium">Tipo de solicitud</label>
+          <label className="block mb-2 font-medium">Tipo de solicitud</label>
           <select
-            className="w-full border px-3 py-2 rounded"
+            className="w-full border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
             value={tipo}
             onChange={(e) => setTipo(e.target.value)}
             required
@@ -34,35 +41,43 @@ export default function NuevaPQRSPage() {
             ))}
           </select>
         </div>
+
         <div>
-          <label className="block mb-1 font-medium">Asunto</label>
+          <label className="block mb-2 font-medium">Asunto</label>
           <input
             type="text"
-            className="w-full border px-3 py-2 rounded"
+            className="w-full border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
             value={asunto}
             onChange={(e) => setAsunto(e.target.value)}
             required
           />
         </div>
+
         <div>
-          <label className="block mb-1 font-medium">Descripción detallada</label>
+          <label className="block mb-2 font-medium">Descripción detallada</label>
           <textarea
-            className="w-full border px-3 py-2 rounded"
+            className="w-full border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
+            rows={4}
             value={descripcion}
             onChange={(e) => setDescripcion(e.target.value)}
             required
           />
         </div>
+
         <div>
-          <label className="block mb-1 font-medium">Adjuntar archivo</label>
+          <label className="block mb-2 font-medium">Adjuntar archivo</label>
           <input
             type="file"
-            onChange={(e) => setArchivo(e.target.files?.[0] || null)}
+            className="w-full border px-4 py-2 rounded-lg"
+            name="archivo"
           />
         </div>
-        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
-          Radicar solicitud
-        </button>
+
+        <div className="flex justify-center">
+          <button type="submit" className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition">
+            Radicar solicitud
+          </button>
+        </div>
       </form>
     </div>
   )

@@ -11,37 +11,39 @@ export default function SolicitudesPage() {
   const router = useRouter()
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Mis solicitudes</h1>
-      <table className="w-full bg-white border rounded shadow text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 text-left">Asunto</th>
-            <th className="p-2 text-left">Tipo</th>
-            <th className="p-2 text-left">Fecha</th>
-            <th className="p-2 text-left">Estado</th>
-            <th className="p-2 text-left">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mockPQRS.map((pqrs) => (
-            <tr key={pqrs.id} className="border-t">
-              <td className="p-2">{pqrs.asunto}</td>
-              <td className="p-2">{pqrs.tipo}</td>
-              <td className="p-2">{pqrs.fecha}</td>
-              <td className="p-2">{pqrs.estado}</td>
-              <td className="p-2">
-                <button
-                  className="text-blue-600 hover:underline"
-                  onClick={() => router.push(`/dashboard/solicitudes/${pqrs.id}`)}
-                >
-                  Ver detalles
-                </button>
-              </td>
+    <div className="bg-[#F9F6FF] p-10 rounded-2xl shadow-md font-serif">
+      <h1 className="text-2xl font-bold mb-8">Mis solicitudes</h1>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white rounded-lg shadow-sm text-sm">
+          <thead className="bg-[#F1EAFE]">
+            <tr>
+              <th className="py-3 px-4 text-left">Asunto</th>
+              <th className="py-3 px-4 text-left">Tipo</th>
+              <th className="py-3 px-4 text-left">Fecha</th>
+              <th className="py-3 px-4 text-left">Estado</th>
+              <th className="py-3 px-4 text-left">Detalles</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {mockPQRS.map((pqrs) => (
+              <tr key={pqrs.id} className="border-b hover:bg-[#faf5ff] transition">
+                <td className="py-3 px-4">{pqrs.asunto}</td>
+                <td className="py-3 px-4">{pqrs.tipo}</td>
+                <td className="py-3 px-4">{pqrs.fecha}</td>
+                <td className="py-3 px-4">{pqrs.estado}</td>
+                <td className="py-3 px-4">
+                  <button
+                    className="text-purple-600 hover:underline"
+                    onClick={() => router.push(`/dashboard/solicitudes/${pqrs.id}`)}
+                  >
+                    Ver detalles
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

@@ -3,25 +3,30 @@
 import { useRouter } from 'next/navigation'
 import { FileText, FolderOpen } from 'lucide-react'
 
-export default function PrincipalUsuario() {
+export default function AccionesRapidas() {
   const router = useRouter()
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Acciones rápidas</h1>
-      <div className="flex space-x-6">
-        <button
-          onClick={() => router.push('/dashboard/nueva-pqrs')}
-          className="flex items-center bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition"
-        >
-          <FileText className="mr-2" /> Nueva PQRS
-        </button>
-        <button
-          onClick={() => router.push('/dashboard/solicitudes')}
-          className="flex items-center bg-green-600 text-white px-6 py-3 rounded-md hover:bg-green-700 transition"
-        >
-          <FolderOpen className="mr-2" /> Mis solicitudes
-        </button>
+    <div className="flex justify-center items-center h-full bg-white">
+      <div className="bg-[#F8F4FF] p-10 rounded-2xl shadow-md">
+        <h1 className="text-2xl font-serif font-bold mb-8 text-center">Acciones rápidas</h1>
+        <div className="flex space-x-10">
+          <div
+            onClick={() => router.push('/dashboard/nueva-pqrs')}
+            className="flex flex-col items-center justify-center w-32 h-32 bg-white rounded-xl shadow hover:shadow-lg cursor-pointer transition"
+          >
+            <FileText className="w-10 h-10 text-purple-500 mb-2" />
+            <span className="text-purple-600 font-serif text-sm">Nueva PQRS</span>
+          </div>
+
+          <div
+            onClick={() => router.push('/dashboard/solicitudes')}
+            className="flex flex-col items-center justify-center w-32 h-32 bg-white rounded-xl shadow hover:shadow-lg cursor-pointer transition"
+          >
+            <FolderOpen className="w-10 h-10 text-purple-500 mb-2" />
+            <span className="text-purple-600 font-serif text-sm">Mis solicitudes</span>
+          </div>
+        </div>
       </div>
     </div>
   )
