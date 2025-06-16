@@ -1,173 +1,240 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { listarGestores, eliminarGestor, actualizarGestor } from '../../../../api/gestores'
+import { GestorDTO, ActualizarGestorDTO } from '../../../../types/gestor'
 
-interface Gestor {
-  id: number
-  nombre: string
-  correo: string
-  rol: string
-}
+const ROLES = {
+  1: 'Administrador',
+  2: 'Gestor',
+} as const
 
-const gestoresIniciales: Gestor[] = [
-  { id: 1, nombre: 'Ana Restrepo', correo: 'AnaP@udea.co', rol: 'Agente' },
-  { id: 2, nombre: 'Carlos Torres', correo: 'CarlosT@udea.co', rol: 'Supervisor' },
-  { id: 3, nombre: 'Pedro Ortiz', correo: 'PedroO@udea.edu.co', rol: 'Administrador' },
-]
+const ROLES_REVERSE = {
+  'Administrador': 1,
+  'Gestor': 2,
+} as const
 
 export default function ListaGestoresPage() {
   const router = useRouter()
-  const [gestores, setGestores] = useState<Gestor[]>(gestoresIniciales)
-  const [gestorAEliminar, setGestorAEliminar] = useState<Gestor | null>(null)
-  const [gestorAEditar, setGestorAEditar] = useState<Gestor | null>(null)
-  const [formEdit, setFormEdit] = useState({ nombre: '', correo: '', rol: '' })
+  const [gestores, setGestores] = useState<GestorDTO[]>([])
+  const [gestorSeleccionado, setGestorSeleccionado] = useState<GestorDTO | null>(null)
+  const [mostrarModalEditar, setMostrarModalEditar] = useState(false)
+  const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false)
 
-  const handleEliminarConfirmado = () => {
-    if (gestorAEliminar) {
-      setGestores(prev => prev.filter(g => g.id !== gestorAEliminar.id))
-      setGestorAEliminar(null)
+  const [form, setForm] = useState({
+    nombre: '',
+    apellido: '',
+    correo: '',
+    rol: ''
+  })
+
+  useEffect(() => {
+    cargarGestores()
+  }, [])
+
+  const cargarGestores = async () => {
+    try {
+      const res = await listarGestores()
+      setGestores(res.data ?? res) // por si viene como .data o directamente el array
+    } catch (error) {
+      console.error('Error al cargar gestores:', error)
     }
   }
 
-  const handleEditar = (gestor: Gestor) => {
-    setGestorAEditar(gestor)
-    setFormEdit({ nombre: gestor.nombre, correo: gestor.correo, rol: gestor.rol })
+  const handleEditar = (gestor: GestorDTO) => {
+    setGestorSeleccionado(gestor)
+    setForm({
+      nombre: gestor.nombre,
+      apellido: gestor.apellido,
+      correo: gestor.correo,
+      rol: ROLES[gestor.idCargo] ?? ''
+    })
+
+    setMostrarModalEditar(true)
   }
 
-  const handleGuardarEdicion = () => {
-    setGestores(prev =>
-      prev.map(g =>
-        g.id === gestorAEditar?.id
-          ? { ...g, ...formEdit }
-          : g
-      )
-    )
-    setGestorAEditar(null)
+  const handleGuardarEdicion = async () => {
+    if (!gestorSeleccionado) return
+
+    const idCargo = Object.entries(ROLES).find(([_, nombre]) => nombre === form.rol)?.[0]
+    if (!idCargo) {
+      console.error('Rol no válido')
+      return
+    }
+
+    const dto: GestorDTO = {
+      nombre: form.nombre,
+      apellido: form.apellido,
+      correo: form.correo,
+      idCargo: Number(idCargo)
+    }
+
+    try {
+      await actualizarGestor(gestorSeleccionado.id, dto)
+      setMostrarModalEditar(false) // ✅ CORREGIDO
+      cargarGestores()
+    } catch (error) {
+      console.error('Error actualizando gestor:', error)
+    }
+  }
+
+  const handleEliminar = async () => {
+    if (!gestorSeleccionado) return
+
+    try {
+      await eliminarGestor(gestorSeleccionado.id)
+      setMostrarModalEliminar(false)
+      cargarGestores()
+    } catch (error) {
+      console.error('Error eliminando gestor:', error)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F6FF] flex justify-center items-center font-serif py-10">
-      <div className="w-full max-w-4xl bg-white p-10 rounded-lg shadow space-y-10">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Gestores registrados</h1>
-        </div>
+    <div className="bg-[#F9F6FF] min-h-screen flex flex-col items-center justify-center py-10 font-serif">
+      <h1 className="text-3xl font-bold mb-10">Gestores registrados</h1>
 
-        <div className="bg-[#F4F0FF] rounded-2xl p-6 shadow">
-          <table className="w-full text-center">
-            <thead>
-              <tr className="border-b">
-                <th className="py-2">Nombre</th>
-                <th>Correo</th>
-                <th>Rol</th>
-                <th></th>
+      <div className="bg-white p-10 rounded-3xl shadow-md w-full max-w-4xl space-y-6">
+        <table className="w-full text-center">
+          <thead>
+            <tr className="border-b">
+              <th className="py-2">Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {gestores.map((gestor) => (
+              <tr key={gestor.id} className="border-b">
+                <td className="py-4">{gestor.nombre}</td>
+                <td>{gestor.correo}</td>
+                <td>{ROLES[gestor.idCargo]}</td>
+                <td>
+                  <div className="flex justify-center gap-4">
+                    <button onClick={() => handleEditar(gestor)} className="text-purple-600 hover:text-purple-800">
+                      <Pencil size={20} />
+                    </button>
+                    <button onClick={() => {
+                      setGestorSeleccionado(gestor)
+                      setMostrarModalEliminar(true)
+                    }} className="text-red-500 hover:text-red-700">
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {gestores.map(gestor => (
-                <tr key={gestor.id} className="border-b">
-                  <td className="py-4">{gestor.nombre}</td>
-                  <td>{gestor.correo}</td>
-                  <td>{gestor.rol}</td>
-                  <td className="py-4">
-                    <div className="flex justify-center items-center space-x-3">
-                      <button onClick={() => handleEditar(gestor)}>
-                        <Pencil className="text-purple-500 w-5 h-5" />
-                      </button>
-                      <button onClick={() => setGestorAEliminar(gestor)}>
-                        <Trash2 className="text-red-500 w-5 h-5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-        {/* Botón de nuevo gestor*/}
-        <div className="flex justify-center">
-          <button 
-            onClick={() => router.push('/dashboard/gestores')}
-            className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg"
-          >
-            Nuevo gestor
-          </button>
-        </div>
+      <div className="mt-10">
+        <button
+          onClick={() => router.push('/dashboard/gestores')}
+          className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition"
+        >
+          Nuevo gestor
+        </button>
+      </div>
 
-        {/* Popup de confirmación eliminar */}
-        {gestorAEliminar && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-[#F4F0FF] p-10 rounded-xl text-center space-y-4">
-              <p className="text-lg font-semibold">
-                ¿Está seguro que deseas eliminar al Gestor {gestorAEliminar.nombre}?
-              </p>
-              <p className="text-gray-500">No puedes revertir esto</p>
-              <div className="flex justify-center space-x-6">
-                <button
-                  onClick={handleEliminarConfirmado}
-                  className="bg-purple-500 text-white px-6 py-2 rounded"
-                >
-                  Sí
-                </button>
-                <button
-                  onClick={() => setGestorAEliminar(null)}
-                  className="bg-red-400 text-white px-6 py-2 rounded"
-                >
-                  No
-                </button>
-              </div>
+      {/* Modal eliminar */}
+      {mostrarModalEliminar && gestorSeleccionado && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white p-8 rounded-2xl shadow-xl w-[90%] max-w-md text-center">
+            <h2 className="text-xl font-semibold mb-4">
+              ¿Eliminar al gestor "{gestorSeleccionado.nombre}"?
+            </h2>
+            <p className="text-gray-500 mb-6">Esta acción no se puede deshacer.</p>
+            <div className="flex justify-center gap-6">
+              <button onClick={handleEliminar} className="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600">
+                Sí
+              </button>
+              <button onClick={() => setMostrarModalEliminar(false)} className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600">
+                No
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Popup de edición */}
-        {gestorAEditar && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-[#F4F0FF] p-10 rounded-xl space-y-6">
-              <h2 className="text-xl font-bold text-center">Editar Gestor</h2>
-              <div className="space-y-4">
+      {/* Modal editar */}
+      {mostrarModalEditar && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white p-10 rounded-3xl shadow-lg w-[90%] max-w-lg">
+            <h2 className="text-xl font-semibold mb-6 text-center">Editar Gestor</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-2 font-medium">Nombre</label>
                 <input
-                  type="text"
-                  value={formEdit.nombre}
-                  onChange={e => setFormEdit({ ...formEdit, nombre: e.target.value })}
-                  className="w-full border px-4 py-2 rounded"
-                  placeholder="Nombre"
+                  name="nombre"
+                  value={form.nombre}
+                  onChange={handleChange}
+                  className="w-full border px-4 py-2 rounded-lg"
                 />
+              </div>
+              <div>
+                <label className="block mb-2 font-medium">Apellido</label>
+                <input
+                  name="apellido"
+                  value={form.apellido}
+                  onChange={handleChange}
+                  className="w-full border px-4 py-2 rounded-lg"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-2 font-medium">Correo</label>
                 <input
                   type="email"
-                  value={formEdit.correo}
-                  onChange={e => setFormEdit({ ...formEdit, correo: e.target.value })}
-                  className="w-full border px-4 py-2 rounded"
-                  placeholder="Correo"
-                />
-                <input
-                  type="text"
-                  value={formEdit.rol}
-                  onChange={e => setFormEdit({ ...formEdit, rol: e.target.value })}
-                  className="w-full border px-4 py-2 rounded"
-                  placeholder="Rol"
+                  name="correo"
+                  value={form.correo}
+                  onChange={handleChange}
+                  className="w-full border px-4 py-2 rounded-lg"
                 />
               </div>
-              <div className="flex justify-center space-x-6">
-                <button
-                  onClick={handleGuardarEdicion}
-                  className="bg-purple-500 text-white px-6 py-2 rounded"
+              <div>
+                <label className="block mb-2 font-medium">Rol</label>
+                <select
+                  name="rol"
+                  value={form.rol}
+                  onChange={handleChange}
+                  className="w-full border px-4 py-2 rounded-lg"
                 >
-                  Guardar
-                </button>
-                <button
-                  onClick={() => setGestorAEditar(null)}
-                  className="bg-red-400 text-white px-6 py-2 rounded"
-                >
-                  Cancelar
-                </button>
+                  <option value="">Seleccione…</option>
+                  {Object.values(ROLES_REVERSE).map((id) => (
+                    <option key={id} value={ROLES[id]}>
+                      {ROLES[id]}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
+
+            <div className="flex justify-center gap-6 mt-8">
+              <button
+                onClick={handleGuardarEdicion}
+                className="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600"
+              >
+                Guardar
+              </button>
+              <button
+                onClick={() => setMostrarModalEditar(false)}
+                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
