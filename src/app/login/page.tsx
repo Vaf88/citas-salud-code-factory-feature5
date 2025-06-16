@@ -2,27 +2,41 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from '../context/AuthContext'  // 👈 Importamos el contexto
+import { useAuth } from '../context/AuthContext'
+import { loginRequest } from '../../api/auth'
+import { LoginRequestDTO } from '../../types/auth'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { setRole } = useAuth()  // 👈 Obtenemos el setter del rol desde el contexto
+  const { setRole, setId } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
+    setLoading(true)
 
-    // Validación de credenciales
-    if (email === 'admin@admin.com' && password === 'admin') {
-      setRole('admin')  // 👈 Guardamos el rol en el contexto
-      router.push('/dashboard')  // Ya no es necesario poner el role en la URL
-    } else if (email === 'user@user.com' && password === 'user') {
-      setRole('user')
+    const loginData: LoginRequestDTO = {
+      correo: email,
+      clave: password,
+    }
+
+    try {
+      const response = await loginRequest(loginData)
+      const { token, role, id } = response.data
+
+      localStorage.setItem('token', token)
+      setRole(role)
+      setId(id)
       router.push('/dashboard')
-    } else {
-      setError('Credenciales inválidas')
+    } catch (err: any) {
+      const msg = err.response?.data?.mensaje || 'Credenciales inválidas'
+      setError(msg)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -66,9 +80,10 @@ export default function LoginPage() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <button
             type="submit"
+            disabled={loading}
             className="w-full bg-[#A48CF0] text-white py-2 rounded-md hover:bg-[#8b75cc] transition font-medium"
           >
-            Iniciar Sesión
+            {loading ? 'Ingresando...' : 'Iniciar Sesión'}
           </button>
         </form>
         <p className="mt-4 text-sm text-center">

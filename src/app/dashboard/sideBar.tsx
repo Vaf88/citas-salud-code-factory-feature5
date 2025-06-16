@@ -10,18 +10,24 @@ export default function Sidebar() {
 
   const links = [
     { label: 'Principal', href: '/dashboard' },
-    { label: 'Mis solicitudes', href: '/dashboard/solicitudes' },
-    ...(role === 'admin'
+    //{ label: 'Mis solicitudes', href: '/dashboard/solicitudes' },
+    ...(role === 'Administrador'
       ? [
           { label: 'Notificaciones', href: '/dashboard/notificaciones' },
-          { label: 'Gestores', href: '/dashboard/gestores' },
+          { label: 'Gestores', href: '/dashboard/gestores' }
+        ]
+      : []),
+    ...(role === 'Cliente'
+      ? [
+          { label: 'Radicar PQRS', href: '/dashboard/nueva-pqrs' },
+          { label: 'Mis solicitudes', href: '/dashboard/solicitudes' }
         ]
       : []),
   ]
 
   const handleLogout = () => {
-    logout()              // limpiamos el estado
-    router.push('/')      // lo llevamos al login
+    logout()
+    router.push('/')
   }
 
   return (
@@ -52,4 +58,3 @@ export default function Sidebar() {
     </div>
   )
 }
-
