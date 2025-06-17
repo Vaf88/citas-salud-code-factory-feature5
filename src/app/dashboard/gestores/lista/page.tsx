@@ -69,7 +69,7 @@ export default function ListaGestoresPage() {
 
     const idCargo = Number(idCargoEntry[0])
 
-    const GestorDTO = {
+    const dto: GestorDTO = {
       // Necesitarás un 'id' aquí si GestorDTO lo requiere para la actualización.
       // Si la API de actualizarGestor no espera el ID dentro del DTO, y solo como argumento,
       // entonces GestorDTO no necesitará el 'id' para esta parte.
@@ -83,7 +83,7 @@ export default function ListaGestoresPage() {
 
     try {
       // Esta línea requiere que 'gestorSeleccionado' (que es de tipo GestorDTO) tenga 'id'
-      await actualizarGestor(gestorSeleccionado.id)
+      await actualizarGestor(gestorSeleccionado.id, dto)
       setMostrarModalEditar(false)
       const res = await listarGestores()
       setGestores(res.data ?? res)
