@@ -1,14 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { crearNotificacion } from '../../../api/notificaciones'
 import { CrearNotificacionInstitucionalDTO } from '../../../types/notificaciones'
 
 export default function NotificacionesPage() {
-  const router = useRouter()
   const { id } = useAuth()
 
   const [form, setForm] = useState({
@@ -17,6 +15,7 @@ export default function NotificacionesPage() {
     fechaExpiracion: '',
     idTipoPublico: ''
   })
+
   const [msg, setMsg] = useState<'exito' | 'error' | ''>('')
 
   const handleChange = (
@@ -52,7 +51,7 @@ export default function NotificacionesPage() {
         fechaExpiracion: '',
         idTipoPublico: ''
       })
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error creando notificación:', err)
       setMsg('error')
     }
@@ -126,14 +125,16 @@ export default function NotificacionesPage() {
           {msg === 'exito' && <p className="text-green-600 text-center">¡Notificación creada con éxito!</p>}
           {msg === 'error' && <p className="text-red-600 text-center">Faltó algún campo obligatorio o hubo un error.</p>}
         </form>
+
         <div className="flex justify-center">
-        <Link href="/dashboard/notificaciones/lista">
-          <button className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition">
-            Ver notificaciones creadas
-          </button>
-        </Link>
-      </div>
+          <Link href="/dashboard/notificaciones/lista">
+            <button className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition">
+              Ver notificaciones creadas
+            </button>
+          </Link>
+        </div>
       </div>
     </div>
   )
 }
+

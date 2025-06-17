@@ -1,8 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import dayjs from 'dayjs'
 
 import {
@@ -13,7 +12,6 @@ import {
 import { NotificacionInstitucionalDTO } from '../../../../types/notificacion'
 
 export default function ListaNotificacionesPage() {
-  const router = useRouter()
   const [notificaciones, setNotificaciones] = useState<NotificacionInstitucionalDTO[]>([])
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
@@ -39,7 +37,7 @@ export default function ListaNotificacionesPage() {
   const cargarNotificaciones = () => {
     listarNotificaciones()
       .then(res => setNotificaciones(res.data))
-      .catch(err => console.error('Error cargando notificaciones', err))
+      .catch(() => console.error('Error cargando notificaciones'))
   }
 
   const calcularEstado = (fechaExpiracion: string): 'Activa' | 'Inactiva' => {
@@ -49,7 +47,6 @@ export default function ListaNotificacionesPage() {
   const handleEditar = (n: NotificacionInstitucionalDTO) => {
     setNotificacionSeleccionada(n)
 
-    // Buscar el nombre del tipo de público a partir del ID
     const tipoSeleccionado = tiposPublico.find(t => t.id === n.idTipoPublico)
 
     setForm({
@@ -62,11 +59,9 @@ export default function ListaNotificacionesPage() {
     setShowEditModal(true)
   }
 
-
   const handleGuardarEdicion = async () => {
     if (!notificacionSeleccionada) return
 
-    // Convertir el nombre del tipo de público nuevamente a su ID
     const tipoSeleccionado = tiposPublico.find(tp => tp.nombre === form.idTipoPublico)
 
     if (!tipoSeleccionado) {
@@ -84,11 +79,10 @@ export default function ListaNotificacionesPage() {
 
       setShowEditModal(false)
       cargarNotificaciones()
-    } catch (error) {
-      console.error('Error actualizando notificación:', error)
+    } catch {
+      console.error('Error actualizando notificación')
     }
   }
-
 
   const handleEliminar = async () => {
     if (!notificacionSeleccionada) return
@@ -97,12 +91,12 @@ export default function ListaNotificacionesPage() {
       await eliminarNotificacion(notificacionSeleccionada.idNotificacionInstitucional)
       setShowDeleteModal(false)
       cargarNotificaciones()
-    } catch (error) {
-      console.error('Error eliminando notificación:', error)
+    } catch {
+      console.error('Error eliminando notificación')
     }
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
@@ -144,12 +138,12 @@ export default function ListaNotificacionesPage() {
       </div>
 
       <div className="mt-10">
-        <button
-          onClick={() => router.push('/dashboard/notificaciones')}
+        <a
+          href="/dashboard/notificaciones"
           className="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition"
         >
           Nueva notificación
-        </button>
+        </a>
       </div>
 
       {/* Modal Eliminar */}
@@ -227,7 +221,6 @@ export default function ListaNotificacionesPage() {
                   ))}
                 </select>
               </div>
-
             </div>
 
             <div className="flex justify-center gap-6 mt-8">
