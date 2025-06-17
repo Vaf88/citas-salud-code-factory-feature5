@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { listarGestores, eliminarGestor, actualizarGestor } from '../../../../api/gestores'
-import { GestorDTO } from '../../../../types/gestor'
+import { GestorDTO } from '../../../../types/gestor' // Asegúrate de que GestorDTO incluye 'id' aquí
 
 const ROLES = {
   1: 'Administrador',
@@ -70,6 +70,11 @@ export default function ListaGestoresPage() {
     const idCargo = Number(idCargoEntry[0])
 
     const dto: GestorDTO = {
+      // Necesitarás un 'id' aquí si GestorDTO lo requiere para la actualización.
+      // Si la API de actualizarGestor no espera el ID dentro del DTO, y solo como argumento,
+      // entonces GestorDTO no necesitará el 'id' para esta parte.
+      // Sin embargo, para que 'gestorSeleccionado.id' funcione, GestorDTO sí necesita 'id'.
+      // Si 'id' es parte del DTO para actualizar, añade: id: gestorSeleccionado.id,
       nombre: form.nombre,
       apellido: form.apellido,
       correo: form.correo,
@@ -77,6 +82,7 @@ export default function ListaGestoresPage() {
     }
 
     try {
+      // Esta línea requiere que 'gestorSeleccionado' (que es de tipo GestorDTO) tenga 'id'
       await actualizarGestor(gestorSeleccionado.id, dto)
       setMostrarModalEditar(false)
       const res = await listarGestores()
@@ -90,6 +96,7 @@ export default function ListaGestoresPage() {
     if (!gestorSeleccionado) return
 
     try {
+      // Esta línea requiere que 'gestorSeleccionado' (que es de tipo GestorDTO) tenga 'id'
       await eliminarGestor(gestorSeleccionado.id)
       setMostrarModalEliminar(false)
       const res = await listarGestores()
@@ -119,7 +126,7 @@ export default function ListaGestoresPage() {
           </thead>
           <tbody>
             {gestores.map((gestor) => (
-              <tr key={gestor.id} className="border-b">
+              <tr key={gestor.id} className="border-b"> {/* Esto requiere que gestor.id exista */}
                 <td className="py-4">{gestor.nombre}</td>
                 <td>{gestor.correo}</td>
                 <td>{ROLES[gestor.idCargo as keyof typeof ROLES]}</td>
