@@ -3,13 +3,13 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { obtenerPqrsCliente } from '../../../api/pqrs'
-import { PqrsDTO } from '../../../types/pqrs'
+import { ResumenPqrsDTO } from '../../../types/pqrs'
 import { useAuth } from '../../context/AuthContext'
 
 export default function SolicitudesPage() {
   const router = useRouter()
   const { id } = useAuth()
-  const [pqrsList, setPqrsList] = useState<ResumenPqrsDTO[]>([])
+  const [pqrsList, setPqrsList] = useState<ResumenPqrsDTO[]>([]) 
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

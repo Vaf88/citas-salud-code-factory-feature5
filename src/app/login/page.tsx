@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '../context/AuthContext'
 import { loginRequest } from '../../api/auth'
 import { LoginRequestDTO } from '../../types/auth'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -32,9 +33,9 @@ export default function LoginPage() {
       setRole(role)
       setId(id)
       router.push('/dashboard')
-    } catch (err: any) {
-      const msg = err.response?.data?.mensaje || 'Credenciales inválidas'
-      setError(msg)
+    } catch (err: unknown) {
+      const mensaje = (err as any)?.response?.data?.mensaje || 'Credenciales inválidas'
+      setError(mensaje)
     } finally {
       setLoading(false)
     }
@@ -43,7 +44,7 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#F1EAFE] px-4">
       <div className="text-center mb-8">
-        <img src="/img/LogoCitas.png" alt="Logo" className="mx-auto w-24 mb-4" />
+        <Image src="/img/LogoCitas.png" alt="Logo" width={96} height={96} className="mx-auto mb-4" />
         <h1 className="text-4xl font-serif font-bold text-black">CitaSalud</h1>
       </div>
       <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-lg text-left">
