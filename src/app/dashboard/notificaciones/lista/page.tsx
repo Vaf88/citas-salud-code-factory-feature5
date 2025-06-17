@@ -151,7 +151,7 @@ export default function ListaNotificacionesPage() {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-[#F5F1FF] p-8 rounded-2xl shadow-xl w-[90%] max-w-md text-center">
             <h2 className="text-xl font-semibold mb-4">
-              ¿Eliminar notificación "{notificacionSeleccionada.tituloNotificacion}"?
+              ¿Eliminar notificación &quot;{notificacionSeleccionada.tituloNotificacion}&quot;?
             </h2>
             <p className="text-gray-500 mb-6">Esta acción no se puede deshacer.</p>
             <div className="flex justify-center gap-6">

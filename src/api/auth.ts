@@ -5,6 +5,7 @@ import {
   LoginRequestDTO,
   LoginResponseDTO,
   RegistroUsuarioDTO,
+  RegistroUsuarioResponseDTO, 
 } from '../types/auth'
 import { AxiosResponse } from 'axios'
 
@@ -16,6 +17,6 @@ export const loginRequest = (
 
 export const registerRequest = (
   data: RegistroUsuarioDTO
-): Promise<AxiosResponse<any>> => {
+): Promise<AxiosResponse<RegistroUsuarioResponseDTO>> => {
   return axios.post('/usuarios/registro', data)
 }

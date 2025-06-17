@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { listarGestores, eliminarGestor, actualizarGestor } from '../../../../api/gestores'
-import { GestorDTO } from '../../../../types/gestor' // ✅ Se eliminó ActualizarGestorDTO
+import { GestorDTO } from '../../../../types/gestor'
 
 const ROLES = {
   1: 'Administrador',
@@ -37,7 +37,7 @@ export default function ListaGestoresPage() {
   const cargarGestores = async () => {
     try {
       const res = await listarGestores()
-      setGestores(res.data ?? res) // por si viene como .data o directamente el array
+      setGestores(res.data ?? res)
     } catch (error) {
       console.error('Error al cargar gestores:', error)
     }
@@ -58,7 +58,7 @@ export default function ListaGestoresPage() {
   const handleGuardarEdicion = async () => {
     if (!gestorSeleccionado) return
 
-    const idCargo = Object.entries(ROLES).find(([key, nombre]) => nombre === form.rol)?.[0] // ✅ Usar "key" en vez de "_"
+    const idCargo = Object.entries(ROLES).find(([_, nombre]) => nombre === form.rol)?.[0] // ✅ key ya no genera warning
     if (!idCargo) {
       console.error('Rol no válido')
       return
@@ -149,7 +149,7 @@ export default function ListaGestoresPage() {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-2xl shadow-xl w-[90%] max-w-md text-center">
             <h2 className="text-xl font-semibold mb-4">
-              ¿Eliminar al gestor &quot;{gestorSeleccionado.nombre}&quot;? {/* */}
+              ¿Eliminar al gestor &quot;{gestorSeleccionado.nombre}&quot;? {/* ✅ comillas escapadas */}
             </h2>
             <p className="text-gray-500 mb-6">Esta acción no se puede deshacer.</p>
             <div className="flex justify-center gap-6">
@@ -238,3 +238,4 @@ export default function ListaGestoresPage() {
     </div>
   )
 }
+
