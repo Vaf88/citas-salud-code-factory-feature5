@@ -11,10 +11,8 @@ const ROLES = {
   2: 'Gestor',
 } as const
 
-const ROLES_REVERSE = {
-  'Administrador': 1,
-  'Gestor': 2,
-} as const
+type RolNombre = keyof typeof ROLES
+type RolTexto = (typeof ROLES)[RolNombre]
 
 export default function ListaGestoresPage() {
   const router = useRouter()
@@ -23,7 +21,12 @@ export default function ListaGestoresPage() {
   const [mostrarModalEditar, setMostrarModalEditar] = useState(false)
   const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false)
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    nombre: string
+    apellido: string
+    correo: string
+    rol: RolTexto | ''
+  }>({
     nombre: '',
     apellido: '',
     correo: '',
@@ -31,17 +34,17 @@ export default function ListaGestoresPage() {
   })
 
   useEffect(() => {
+    const cargarGestores = async () => {
+      try {
+        const res = await listarGestores()
+        setGestores(res.data ?? res)
+      } catch (error) {
+        console.error('Error al cargar gestores:', error)
+      }
+    }
+
     cargarGestores()
   }, [])
-
-  const cargarGestores = async () => {
-    try {
-      const res = await listarGestores()
-      setGestores(res.data ?? res)
-    } catch (error) {
-      console.error('Error al cargar gestores:', error)
-    }
-  }
 
   const handleEditar = (gestor: GestorDTO) => {
     setGestorSeleccionado(gestor)
@@ -49,32 +52,34 @@ export default function ListaGestoresPage() {
       nombre: gestor.nombre,
       apellido: gestor.apellido,
       correo: gestor.correo,
-      rol: ROLES[gestor.idCargo] ?? ''
+      rol: ROLES[gestor.idCargo as keyof typeof ROLES] ?? ''
     })
-
     setMostrarModalEditar(true)
   }
 
   const handleGuardarEdicion = async () => {
     if (!gestorSeleccionado) return
 
-    const idCargo = Object.entries(ROLES).find(([_, nombre]) => nombre === form.rol)?.[0] // ✅ key ya no genera warning
-    if (!idCargo) {
+    const idCargoEntry = Object.entries(ROLES).find(([_, nombre]) => nombre === form.rol)
+    if (!idCargoEntry) {
       console.error('Rol no válido')
       return
     }
+
+    const idCargo = Number(idCargoEntry[0])
 
     const dto: GestorDTO = {
       nombre: form.nombre,
       apellido: form.apellido,
       correo: form.correo,
-      idCargo: Number(idCargo)
+      idCargo
     }
 
     try {
       await actualizarGestor(gestorSeleccionado.id, dto)
       setMostrarModalEditar(false)
-      cargarGestores()
+      const res = await listarGestores()
+      setGestores(res.data ?? res)
     } catch (error) {
       console.error('Error actualizando gestor:', error)
     }
@@ -86,7 +91,8 @@ export default function ListaGestoresPage() {
     try {
       await eliminarGestor(gestorSeleccionado.id)
       setMostrarModalEliminar(false)
-      cargarGestores()
+      const res = await listarGestores()
+      setGestores(res.data ?? res)
     } catch (error) {
       console.error('Error eliminando gestor:', error)
     }
@@ -115,16 +121,19 @@ export default function ListaGestoresPage() {
               <tr key={gestor.id} className="border-b">
                 <td className="py-4">{gestor.nombre}</td>
                 <td>{gestor.correo}</td>
-                <td>{ROLES[gestor.idCargo]}</td>
+                <td>{ROLES[gestor.idCargo as keyof typeof ROLES]}</td>
                 <td>
                   <div className="flex justify-center gap-4">
                     <button onClick={() => handleEditar(gestor)} className="text-purple-600 hover:text-purple-800">
                       <Pencil size={20} />
                     </button>
-                    <button onClick={() => {
-                      setGestorSeleccionado(gestor)
-                      setMostrarModalEliminar(true)
-                    }} className="text-red-500 hover:text-red-700">
+                    <button
+                      onClick={() => {
+                        setGestorSeleccionado(gestor)
+                        setMostrarModalEliminar(true)
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
                       <Trash2 size={20} />
                     </button>
                   </div>
@@ -149,7 +158,7 @@ export default function ListaGestoresPage() {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-2xl shadow-xl w-[90%] max-w-md text-center">
             <h2 className="text-xl font-semibold mb-4">
-              ¿Eliminar al gestor &quot;{gestorSeleccionado.nombre}&quot;? {/* ✅ comillas escapadas */}
+              ¿Eliminar al gestor &quot;{gestorSeleccionado.nombre}&quot;?
             </h2>
             <p className="text-gray-500 mb-6">Esta acción no se puede deshacer.</p>
             <div className="flex justify-center gap-6">
@@ -189,7 +198,6 @@ export default function ListaGestoresPage() {
                   className="w-full border px-4 py-2 rounded-lg"
                 />
               </div>
-
               <div>
                 <label className="block mb-2 font-medium">Correo</label>
                 <input
@@ -209,9 +217,9 @@ export default function ListaGestoresPage() {
                   className="w-full border px-4 py-2 rounded-lg"
                 >
                   <option value="">Seleccione…</option>
-                  {Object.values(ROLES_REVERSE).map((id) => (
-                    <option key={id} value={ROLES[id]}>
-                      {ROLES[id]}
+                  {Object.entries(ROLES).map(([id, nombre]) => (
+                    <option key={id} value={nombre}>
+                      {nombre}
                     </option>
                   ))}
                 </select>
@@ -238,4 +246,3 @@ export default function ListaGestoresPage() {
     </div>
   )
 }
-
