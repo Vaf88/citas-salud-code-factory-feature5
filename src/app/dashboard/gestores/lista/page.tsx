@@ -60,7 +60,7 @@ export default function ListaGestoresPage() {
   const handleGuardarEdicion = async () => {
     if (!gestorSeleccionado) return
 
-    const idCargoEntry = Object.entries(ROLES).find(([_, nombre]) => nombre === form.rol)
+    const idCargoEntry = Object.entries(ROLES).find((entry) => entry[1] === form.rol)
     if (!idCargoEntry) {
       console.error('Rol no válido')
       return
@@ -93,8 +93,7 @@ export default function ListaGestoresPage() {
       setMostrarModalEliminar(false)
       const res = await listarGestores()
       setGestores(res.data ?? res)
-    } catch (error)
-    {
+    } catch (error) {
       console.error('Error eliminando gestor:', error)
     }
   }
@@ -174,12 +173,11 @@ export default function ListaGestoresPage() {
         </div>
       )}
 
-      {/* Modal editar */}
+      {/* Modal editar (sin cambios aquí) */}
       {mostrarModalEditar && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-10 rounded-3xl shadow-lg w-[90%] max-w-lg">
             <h2 className="text-xl font-semibold mb-6 text-center">Editar Gestor</h2>
-
             <div className="space-y-4">
               <div>
                 <label className="block mb-2 font-medium">Nombre</label>
@@ -226,7 +224,6 @@ export default function ListaGestoresPage() {
                 </select>
               </div>
             </div>
-
             <div className="flex justify-center gap-6 mt-8">
               <button
                 onClick={handleGuardarEdicion}
