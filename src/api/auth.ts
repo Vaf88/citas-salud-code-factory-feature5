@@ -1,11 +1,9 @@
-// src/api/auth.ts
-
 import axios from './axios'
 import {
   LoginRequestDTO,
   LoginResponseDTO,
   RegistroUsuarioDTO,
-  RegistroUsuarioResponseDTO, 
+
 } from '../types/auth'
 import { AxiosResponse } from 'axios'
 
@@ -17,6 +15,6 @@ export const loginRequest = (
 
 export const registerRequest = (
   data: RegistroUsuarioDTO
-): Promise<AxiosResponse<RegistroUsuarioResponseDTO>> => {
+): Promise<AxiosResponse<RegistroUsuarioDTO>> => { // Cambiado RegistroUsuarioResponseDTO por RegistroUsuarioDTO
   return axios.post('/usuarios/registro', data)
 }
