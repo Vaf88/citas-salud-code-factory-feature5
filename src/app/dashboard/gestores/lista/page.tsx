@@ -60,6 +60,7 @@ export default function ListaGestoresPage() {
   const handleGuardarEdicion = async () => {
     if (!gestorSeleccionado) return
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const idCargoEntry = Object.entries(ROLES).find(([_, nombre]) => nombre === form.rol)
     if (!idCargoEntry) {
       console.error('Rol no válido')
