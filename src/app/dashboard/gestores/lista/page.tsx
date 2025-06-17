@@ -158,7 +158,7 @@ export default function ListaGestoresPage() {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-2xl shadow-xl w-[90%] max-w-md text-center">
             <h2 className="text-xl font-semibold mb-4">
-              ¿Eliminar al gestor "{gestorSeleccionado.nombre}"?
+              ¿Eliminar al gestor '{gestorSeleccionado.nombre}'?
             </h2>
             <p className="text-gray-500 mb-6">Esta acción no se puede deshacer.</p>
             <div className="flex justify-center gap-6">
