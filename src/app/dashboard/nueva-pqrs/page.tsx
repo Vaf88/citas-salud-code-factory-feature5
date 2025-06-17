@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { crearPqrs } from '../../../api/pqrs'
 import { useAuth } from '../../context/AuthContext'
 
@@ -13,13 +12,12 @@ export default function NuevaPQRSPage() {
   const [mensaje, setMensaje] = useState('')
   const [error, setError] = useState('')
   const [archivo, setArchivo] = useState<File | null>(null)
-  const router = useRouter()
 
   const tiposMap: Record<string, number> = {
     'Petición': 1,
     'Queja': 2,
     'Reclamo': 3,
-    'Sugerencia': 4
+    'Sugerencia': 4,
   }
 
   const tipos = Object.keys(tiposMap)
@@ -41,13 +39,11 @@ export default function NuevaPQRSPage() {
     }
 
     try {
-      // Aquí llamas la función que hace la petición
       await crearPqrs({
         idCliente,
         idTipoPqrs: idTipo,
         asuntoPqrs: asunto,
-        descripcionPqrs: descripcion
-        // Nota: si luego necesitas enviar archivo, puedes hacerlo con FormData
+        descripcionPqrs: descripcion,
       })
 
       console.log('Archivo adjunto:', archivo)
@@ -58,12 +54,13 @@ export default function NuevaPQRSPage() {
       setDescripcion('')
       setArchivo(null)
     } catch (err) {
+      console.error('Error al radicar la PQRS:', err)
       setError('Ocurrió un error al radicar la PQRS')
     }
   }
 
   const handleArchivoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null
+    const file = e.target.files?.[0] ?? null
     setArchivo(file)
   }
 
@@ -120,11 +117,18 @@ export default function NuevaPQRSPage() {
             name="archivo"
             onChange={handleArchivoChange}
           />
-          {archivo && <p className="mt-2 text-sm text-gray-600">Archivo seleccionado: {archivo.name}</p>}
+          {archivo && (
+            <p className="mt-2 text-sm text-gray-600">
+              Archivo seleccionado: {archivo.name}
+            </p>
+          )}
         </div>
 
         <div className="flex justify-center">
-          <button type="submit" className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition">
+          <button
+            type="submit"
+            className="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition"
+          >
             Radicar solicitud
           </button>
         </div>
@@ -132,4 +136,3 @@ export default function NuevaPQRSPage() {
     </div>
   )
 }
-

@@ -13,9 +13,9 @@ export default function DetallePQRS() {
   const params = useParams()
   const router = useRouter()
 
-  // 👇 Asegura que el ID sea un número válido
+  // ✅ Corregido: evitar 'as any'
   const id = useMemo(() => {
-    const raw = (params as any)?.id
+    const raw = Array.isArray(params.id) ? params.id[0] : params.id
     const parsed = Number(raw)
     return isNaN(parsed) ? null : parsed
   }, [params])
@@ -31,15 +31,13 @@ export default function DetallePQRS() {
     descripcionPqrs: ''
   })
 
-
   useEffect(() => {
     if (!id) return
     obtenerPorId(id)
       .then((res) => {
         setPqrs(res.data)
 
-        // Mapea tipoPqrs textual a idTipoPqrs numérico
-        const tipoMap = {
+        const tipoMap: Record<string, number> = {
           Petición: 1,
           Queja: 2,
           Reclamo: 3,
@@ -55,7 +53,6 @@ export default function DetallePQRS() {
       .catch((err) => console.error('Error cargando detalle PQRS:', err))
       .finally(() => setLoading(false))
   }, [id])
-
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -119,7 +116,6 @@ export default function DetallePQRS() {
               <option value={3}>Reclamo</option>
               <option value={4}>Sugerencia</option>
             </select>
-
           ) : (
             pqrs.tipoPqrs
           )}

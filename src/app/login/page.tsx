@@ -34,8 +34,8 @@ export default function LoginPage() {
       setId(id)
       router.push('/dashboard')
     } catch (err: unknown) {
-      const mensaje = (err as any)?.response?.data?.mensaje || 'Credenciales inválidas'
-      setError(mensaje)
+      const e = err as { response?: { data?: { mensaje?: string } } }
+      setError(e.response?.data?.mensaje || 'Credenciales inválidas')
     } finally {
       setLoading(false)
     }
