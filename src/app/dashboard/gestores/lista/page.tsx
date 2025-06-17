@@ -83,7 +83,7 @@ export default function ListaGestoresPage() {
 
     try {
       // Esta línea requiere que 'gestorSeleccionado' (que es de tipo GestorDTO) tenga 'id'
-      await actualizarGestor(gestorSeleccionado.id, dto)
+      await actualizarGestor(gestorSeleccionado.id)
       setMostrarModalEditar(false)
       const res = await listarGestores()
       setGestores(res.data ?? res)
