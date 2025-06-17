@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { listarGestores, eliminarGestor, actualizarGestor } from '../../../../api/gestores'
-import { GestorDTO } from '../../../../types/gestor' // Asegúrate de que GestorDTO incluye 'id' aquí
+import { Gestor, GestorDTO } from '../../../../types/gestor'
 
 const ROLES = {
   1: 'Administrador',
@@ -16,8 +16,8 @@ type RolTexto = (typeof ROLES)[RolNombre]
 
 export default function ListaGestoresPage() {
   const router = useRouter()
-  const [gestores, setGestores] = useState<GestorDTO[]>([])
-  const [gestorSeleccionado, setGestorSeleccionado] = useState<GestorDTO | null>(null)
+  const [gestores, setGestores] = useState<Gestor[]>([])
+  const [gestorSeleccionado, setGestorSeleccionado] = useState<Gestor | null>(null)
   const [mostrarModalEditar, setMostrarModalEditar] = useState(false)
   const [mostrarModalEliminar, setMostrarModalEliminar] = useState(false)
 
@@ -46,7 +46,7 @@ export default function ListaGestoresPage() {
     cargarGestores()
   }, [])
 
-  const handleEditar = (gestor: GestorDTO) => {
+  const handleEditar = (gestor: Gestor) => {
     setGestorSeleccionado(gestor)
     setForm({
       nombre: gestor.nombre,
@@ -60,7 +60,6 @@ export default function ListaGestoresPage() {
   const handleGuardarEdicion = async () => {
     if (!gestorSeleccionado) return
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const idCargoEntry = Object.entries(ROLES).find(([_, nombre]) => nombre === form.rol)
     if (!idCargoEntry) {
       console.error('Rol no válido')
@@ -70,11 +69,6 @@ export default function ListaGestoresPage() {
     const idCargo = Number(idCargoEntry[0])
 
     const dto: GestorDTO = {
-      // Necesitarás un 'id' aquí si GestorDTO lo requiere para la actualización.
-      // Si la API de actualizarGestor no espera el ID dentro del DTO, y solo como argumento,
-      // entonces GestorDTO no necesitará el 'id' para esta parte.
-      // Sin embargo, para que 'gestorSeleccionado.id' funcione, GestorDTO sí necesita 'id'.
-      // Si 'id' es parte del DTO para actualizar, añade: id: gestorSeleccionado.id,
       nombre: form.nombre,
       apellido: form.apellido,
       correo: form.correo,
@@ -82,7 +76,6 @@ export default function ListaGestoresPage() {
     }
 
     try {
-      // Esta línea requiere que 'gestorSeleccionado' (que es de tipo GestorDTO) tenga 'id'
       await actualizarGestor(gestorSeleccionado.id, dto)
       setMostrarModalEditar(false)
       const res = await listarGestores()
@@ -96,12 +89,12 @@ export default function ListaGestoresPage() {
     if (!gestorSeleccionado) return
 
     try {
-      // Esta línea requiere que 'gestorSeleccionado' (que es de tipo GestorDTO) tenga 'id'
       await eliminarGestor(gestorSeleccionado.id)
       setMostrarModalEliminar(false)
       const res = await listarGestores()
       setGestores(res.data ?? res)
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Error eliminando gestor:', error)
     }
   }
@@ -126,7 +119,7 @@ export default function ListaGestoresPage() {
           </thead>
           <tbody>
             {gestores.map((gestor) => (
-              <tr key={gestor.id} className="border-b"> {/* Esto requiere que gestor.id exista */}
+              <tr key={gestor.id} className="border-b">
                 <td className="py-4">{gestor.nombre}</td>
                 <td>{gestor.correo}</td>
                 <td>{ROLES[gestor.idCargo as keyof typeof ROLES]}</td>
@@ -166,7 +159,7 @@ export default function ListaGestoresPage() {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
           <div className="bg-white p-8 rounded-2xl shadow-xl w-[90%] max-w-md text-center">
             <h2 className="text-xl font-semibold mb-4">
-              ¿Eliminar al gestor &quot;{gestorSeleccionado.nombre}&quot;?
+              ¿Eliminar al gestor "{gestorSeleccionado.nombre}"?
             </h2>
             <p className="text-gray-500 mb-6">Esta acción no se puede deshacer.</p>
             <div className="flex justify-center gap-6">
