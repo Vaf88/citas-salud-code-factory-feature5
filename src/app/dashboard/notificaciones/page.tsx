@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { crearNotificacion } from '../../../api/notificaciones'
-import { CrearNotificacionInstitucionalDTO } from '../../../types/notificaciones'
+import { CrearNotificacionInstitucionalDTO } from '../../../types/notificacion'
 
 export default function NotificacionesPage() {
   const { id } = useAuth()

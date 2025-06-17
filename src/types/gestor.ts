@@ -13,3 +13,18 @@ export interface EmpleadoDTO {
   idCargo: number
   idUsuario: number
 }
+
+export interface Gestor {
+  id: number
+  nombre: string
+  apellido: string
+  correo: string
+  idCargo: number
+}
+
+export interface CrearGestorDTO {
+  nombre: string
+  apellido: string
+  correo: string
+  idCargo: number
+}

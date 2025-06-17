@@ -30,7 +30,14 @@ export default function LoginPage() {
       const { token, role, id } = response.data
 
       localStorage.setItem('token', token)
-      setRole(role)
+
+      // Mapeo seguro del rol recibido
+      let mappedRole: 'Administrador' | 'Cliente'
+      if (role === 'Administrador') mappedRole = 'Administrador'
+      else if (role === 'Cliente') mappedRole = 'Cliente'
+      else throw new Error('Rol no válido')
+
+      setRole(mappedRole)
       setId(id)
       router.push('/dashboard')
     } catch (err: unknown) {

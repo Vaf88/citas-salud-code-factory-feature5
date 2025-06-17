@@ -6,6 +6,7 @@ export interface LoginRequestDTO {
 }
 
 export interface LoginResponseDTO {
+  id: number
   token: string
   mensaje: string
   role: string
