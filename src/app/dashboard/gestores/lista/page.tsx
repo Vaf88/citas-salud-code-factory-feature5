@@ -69,7 +69,7 @@ export default function ListaGestoresPage() {
 
     const idCargo = Number(idCargoEntry[0])
 
-    const dto: GestorDTO = {
+    const GestorDTO = {
       // Necesitarás un 'id' aquí si GestorDTO lo requiere para la actualización.
       // Si la API de actualizarGestor no espera el ID dentro del DTO, y solo como argumento,
       // entonces GestorDTO no necesitará el 'id' para esta parte.
