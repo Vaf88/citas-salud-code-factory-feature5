@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { listarGestores, eliminarGestor, actualizarGestor } from '../../../../api/gestores'
-import { Gestor, GestorDTO } from '../../../../types/gestor'
+import { GestorDTO } from '../../../../types/gestor'
 
 const ROLES = {
   1: 'Administrador',
